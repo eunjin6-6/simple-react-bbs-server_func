@@ -69,7 +69,7 @@ app.get('/list', (req, res) => {
 // /detail 주소로 요청이 들어오면 할 일
 app.get('/detail', (req, res) => {
   const id = req.query.id;  //get방식으로 id 에 넘어온 숫자 받아오는 방법
-  const sql = "SELECT BOARD_TITLE, BOARD_CONTENT FROM board WHERE BOARD_ID = ?";
+  const sql = "SELECT BOARD_TITLE, BOARD_CONTENT, IMAGE_PATH FROM board WHERE BOARD_ID = ?";
   db.query(sql, [id], (err, result)=>{
     if (err) throw err;
     res.send(result);
