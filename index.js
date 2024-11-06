@@ -2,6 +2,8 @@ const cors = require('cors');
 const express = require('express');
 const app = express();
 const port = 8000;
+const multer  = require('multer');
+
 
 //본문을 통해서 넘어온 요청 파싱(=변환)하기 위해 설치한 미들웨어 (body-parser)를 이용
 app.use(express.json()); //jason 형식으로 변환 //{"name":"Alice", "age":"25"}
@@ -14,6 +16,21 @@ var corsOptions = {
 }
 
 app.use(cors(corsOptions));
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 5)
+    cb(null, uniqueSuffix + file.originalname)
+  }
+})
+
+const upload = multer({ storage: storage })
+
+
 
 
 const mysql = require('mysql');
@@ -59,13 +76,14 @@ app.get('/detail', (req, res) => {
 })
 
 
-app.post('/insert', (req, res) => {
+app.post('/insert', upload.single('image'), (req, res) => {
   //console.log(req.body.title); //post 방식이라 body 안에 숨어서옴
   let title = req.body.title;
   let content = req.body.content;
+  let imagePath = req.file ? req.file.path : null; //필수값은 아니라서
 
-  const sql = "INSERT INTO board (BOARD_TITLE, BOARD_CONTENT, REGISTER_ID) VALUES (?, ?, 'admin')"; //보안상 아래 작성, 노출될 위험 있는 문장
-  db.query(sql, [title, content], (err, result) => {
+  const sql = "INSERT INTO board (BOARD_TITLE, BOARD_CONTENT, IMAGE_PATH, REGISTER_ID) VALUES (?, ?, ?, 'admin')"; //보안상 아래 작성, 노출될 위험 있는 문장
+  db.query(sql, [title, content, imagePath], (err, result) => {
     if (err) throw err;
     res.send(result);
   });
