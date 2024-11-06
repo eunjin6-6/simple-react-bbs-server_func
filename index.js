@@ -16,7 +16,8 @@ var corsOptions = {
 }
 
 app.use(cors(corsOptions));
-
+app.use("/uploads", express.static("uploads")); //클라이언트에게 uploads 폴더에 접근 권한을 부여
+//app.use(express.static('uploads'));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
